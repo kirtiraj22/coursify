@@ -5,9 +5,12 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import * as z from "zod";
 
 interface DescriptionFormProps {
@@ -34,12 +37,22 @@ export const DescriptionForm = ({
 		defaultValues: initialData,
 	});
 
-	const { isSubmitting, isValid } = form.formState;
+    const router = useRouter();
 
+	const { isSubmitting, isValid } = form.formState;
+    
 	const toggleEdit = () => setIsEditing((current) => !current);
 
-	const onSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
+	const onSubmit = async (values: z.infer<typeof formSchema>) => {
+		try{
+            await axios.patch(`/api/courses/${courseId}`, values);
+            toast.success("Description updated Successfully")
+            toggleEdit();
+            router.refresh();
+        }catch(error){
+            console.log("[DESCRIPTION FORM]", error);
+            toast.error("Something went wrong!")
+        }
 	};
 
 	return (
