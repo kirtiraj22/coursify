@@ -6,35 +6,37 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Pencil } from "lucide-react";
+import { ImageIcon, Pencil, PlusCircle } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
-import { Course } from "@prisma/client";
 
-interface DescriptionFormProps {
-	initialData: Course;
+interface ImageFormProps {
+	initialData: {
+		description: string;
+	};
 	courseId: string;
 }
 
 const formSchema = z.object({
-	description: z.string().min(1, {
-		message: "Description is required",
+	imageUrl: z.string().min(1, {
+		message: "Image is required",
 	}),
 });
 
-export const DescriptionForm = ({
+export const ImageForm = ({
 	initialData,
 	courseId,
-}: DescriptionFormProps) => {
+}: ImageFormProps) => {
 	const [isEditing, setIsEditing] = useState(false);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			description: initialData?.description || ""	
+			imageUrl: initialData?.imageUrl || "" 
 		},
 	});
 
@@ -59,27 +61,39 @@ export const DescriptionForm = ({
 	return (
 		<div className="mt-6 border bg-slate-100 rounded-md p-4">
 			<div className="font-medium flex items-center justify-between">
-				Course description
+				Course image
 				<Button onClick={toggleEdit} variant="ghost">
-					{isEditing ? (
+					{isEditing && (
 						<>Cancel </>
-					) : (
+					)}
+
+					{
+						!isEditing && !initialData.imageUrl && (
+							<>
+								<PlusCircle className="h-4 w-4 mr-2"/>
+								Add an image
+							</>
+						)
+					}
+
+					{!isEditing && initialData.imageUrl && (
 						<>
 							<Pencil className="h-4 w-4 mr-2" />
-							Edit Description
+							Edit Image
 						</>
 					)}
 				</Button>
-			</div>
+			</div>  
 			{!isEditing && (
-				<p
-					className={cn(
-						"text-sm mt-2",
-						!initialData.description && "text-slate-500 italic"
-					)}
-				>
-					{initialData?.description || "No description"}
-				</p>
+				!initialData.imageUrl ? (
+					<div className="flex items-center justify-center h-60 bg-slate-200 rounded-md">
+						<ImageIcon className="h-10 w-10 text-slate-500"/>
+					</div>
+				) : (
+					<div className="relative aspect-video mt-2">
+						<Image />
+					</div>
+				)
 			)}
 			{isEditing && (
 				<Form {...form}>
