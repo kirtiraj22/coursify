@@ -5,7 +5,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Pencil, PlusCircle } from "lucide-react";
+import { Loader2, Pencil, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -55,8 +55,35 @@ export const ChaptersForm = ({ initialData, courseId }: ChaptersFormProps) => {
 		}
 	};
 
+	const onReorder = async (updateData: {
+		id: string;
+		position: number
+	}[]) => {
+		try{
+			setIsUpdating(true)
+
+			await axios.put(`/api/courses/${courseId}/chapters/reorder`,{
+				list: updateData
+			})
+			toast.success("Chapters reordered successfully!")
+			router.refresh();
+		}catch(error){
+			console.log("CHAPTER_FORM_REORDER", error)
+			toast.error("Something went wrong")
+		}finally{
+			setIsUpdating(false)
+		}
+	}
+
 	return (
-		<div className="mt-6 border bg-slate-100 rounded-md p-4">
+		<div className="relative mt-6 border bg-slate-100 rounded-md p-4">
+			{
+				isUpdating && (
+					<div className="absolute h-full w-full bg-slate-500/20 top-0 right-0 rounded-md flex items-center justify-center">
+						<Loader2 className="animate-spin h-6 w-6 text-sky-700"/>
+					</div>
+				)
+			}
 			<div className="font-medium flex items-center justify-between">
 				Course chapters
 				<Button onClick={toggleCreating} variant="ghost">
@@ -113,7 +140,7 @@ export const ChaptersForm = ({ initialData, courseId }: ChaptersFormProps) => {
 					}
 					<ChaptersList 
 						onEdit={() => {}}
-						onReorder={()=>{}}
+						onReorder={onReorder}
 						items={initialData.chapters || []}
 					/>
 				</div>
