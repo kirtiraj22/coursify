@@ -5,7 +5,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Loader2, Pencil, PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -75,6 +75,10 @@ export const ChaptersForm = ({ initialData, courseId }: ChaptersFormProps) => {
 		}
 	}
 
+	const onEdit = (id: string) => {
+		router.push(`/teacher/courses/${courseId}/chapters/${id}`)
+	}
+
 	return (
 		<div className="relative mt-6 border bg-slate-100 rounded-md p-4">
 			{
@@ -139,7 +143,7 @@ export const ChaptersForm = ({ initialData, courseId }: ChaptersFormProps) => {
 						!initialData.chapters.length && "No chapters"
 					}
 					<ChaptersList 
-						onEdit={() => {}}
+						onEdit={onEdit}
 						onReorder={onReorder}
 						items={initialData.chapters || []}
 					/>
