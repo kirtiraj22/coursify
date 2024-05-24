@@ -3,8 +3,8 @@
 import axios from "axios";
 import { useState } from "react";
 import * as z from "zod";
+import MuxPlayer from "@mux/mux-player-react"
 import toast from "react-hot-toast";
-import Image from "next/image";
 import { Pencil, PlusCircle, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Chapter, MuxData } from "@prisma/client";
@@ -35,7 +35,7 @@ export const ChapterVideoForm = ({ initialData, courseId, chapterId }: ChapterVi
 			toggleEdit();
 			router.refresh();
 		} catch (error) {
-			console.log("[DESCRIPTION FORM]", error);
+			console.log("[CHAPTER VIDEO FORM]", error);
 			toast.error("Something went wrong!");
 		}
 	};
@@ -69,7 +69,9 @@ export const ChapterVideoForm = ({ initialData, courseId, chapterId }: ChapterVi
 					</div>
 				) : (
 					<div className="relative aspect-video mt-2">
-						Video uploaded!
+						<MuxPlayer 
+							playbackId={initialData?.muxData?.playbackId || ""}
+						/>
 					</div>
 				))}
 			{isEditing && (
