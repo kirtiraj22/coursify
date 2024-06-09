@@ -51,7 +51,7 @@ export async function POST(
         const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [{
             quantity: 1,
             price_data: {
-                currency: "USD",
+                currency: "inr",
                 product_data: {
                     name: course.title,
                     description: course.description!
