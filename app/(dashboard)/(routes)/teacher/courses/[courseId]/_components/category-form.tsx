@@ -1,6 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import * as z from "zod";
+import axios from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Pencil } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { Course } from "@prisma/client";
+
 import {
 	Form,
 	FormControl,
@@ -8,16 +17,8 @@ import {
 	FormItem,
 	FormMessage,
 } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { Pencil } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import * as z from "zod";
-import { Course } from "@prisma/client";
 import { Combobox } from "@/components/ui/combobox";
 
 interface CategoryFormProps {
@@ -40,6 +41,10 @@ export const CategoryForm = ({
 }: CategoryFormProps) => {
 	const [isEditing, setIsEditing] = useState(false);
 
+	const toggleEdit = () => setIsEditing((current) => !current);
+
+	const router = useRouter();
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -47,35 +52,31 @@ export const CategoryForm = ({
 		},
 	});
 
-	const router = useRouter();
-
 	const { isSubmitting, isValid } = form.formState;
-
-	const toggleEdit = () => setIsEditing((current) => !current);
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		try {
 			await axios.patch(`/api/courses/${courseId}`, values);
-			toast.success("Course updated Successfully");
+			toast.success("Course updated");
 			toggleEdit();
 			router.refresh();
-		} catch (error) {
-			console.log("[CATEGORY FORM]", error);
-			toast.error("Something went wrong!");
+		} catch {
+			toast.error("Something went wrong");
 		}
 	};
 
+	// Check if the course already has a selected option.
 	const selectedOption = options.find(
 		(option) => option.value === initialData.categoryId
 	);
 
 	return (
-		<div className="mt-6 border bg-slate-100 rounded-md p-4">
+		<div className="mt-6 border bg-slate-100 rounded-md p-4 dark:bg-gray-800">
 			<div className="font-medium flex items-center justify-between">
 				Course category
 				<Button onClick={toggleEdit} variant="ghost">
 					{isEditing ? (
-						<>Cancel </>
+						<>Cancel</>
 					) : (
 						<>
 							<Pencil className="h-4 w-4 mr-2" />
@@ -106,8 +107,10 @@ export const CategoryForm = ({
 							render={({ field }) => (
 								<FormItem>
 									<FormControl>
-										<Combobox options={...options}
-										{...field} />
+										<Combobox
+											options={options}
+											{...field}
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
